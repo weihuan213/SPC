@@ -1,0 +1,277 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="w">
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+    
+    <script type="text/javascript" src = '{% static "jquery.min-1.12.4.js" %}'></script>
+    <script type="text/javascript" src="{% static 'bootstrap-3.3.7/js/bootstrap.min.js' %}">
+    </script>
+    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/daterangepicker.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/battery/daterangepicker.css" />
+    <link href="/static/css/battery/week_report.css" rel="stylesheet">
+    <title>品质数据分析</title>
+    {% block content-header %}{% endblock %}
+  </head>
+
+  <body>
+  	{% if user.is_authenticated %}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">
+                <img alt="Brand" src="{% static 'img/logo.jpg' %}" style="height: 20px;">
+                </a>
+                <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+            </button>
+              </div>
+            <div id="navbar-collapse" class="collapse navbar-collapse">
+              <ul class="nav navbar-nav">
+                <li>
+                  <a href="{% url 'index' %}"><span class="glyphicon glyphicon-home"></span> 首页 </a>
+                </li>
+                <li class ='active'>
+                  <a href="{% url 'week_report_first' %}"><span class = 'glyphicon glyphicon-leaf'></span> 周报 </a>
+                </li>
+                <li>
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user"></span>
+                    人力管理<span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                          <li><a href="{% url 'people_list' %}">全体</a></li>
+                      <li role="separator" class="divider"></li>
+                      {% for department_n in department_list_all %}
+                        <li><a href="{% url 'people_with_depatments_list' department_n.pk %}">
+                            {{ department_n.department }}
+                            </a></li>
+                        {% empty %}
+                            <li><a href="#">
+                                --未添加任何部门信息--
+                            </a></li>
+                        {% endfor %}
+                  </ul>
+                </li>
+                <li class="{% block nav-data-analysis-active %}{% endblock %}">
+                  <a href="{% url 'data_analysis' %}"><span class="glyphicon glyphicon-book"></span> 用工数据分析 </a>
+                </li>
+              </ul>
+              <ul id="user_part" class = 'nav navbar-nav navbar-right'>
+                {% if user.is_authenticated %}
+                  <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+                        {% if user.have_nickname %}
+                          你好，{{user.username}}({{user.get_nickname}})
+                        {% else %}
+                          {{user.username}}
+                        {% endif %}
+                        <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                         <li><a href="{% url 'user_info' %}">个人资料</a></li>
+                         <li><a href="{% url 'my_notifications' %}">我的消息</a></li>
+                         {% if user.is_staff or user.is_superuser %}
+                         <li class="{% block nav-admin-active %}{% endblock %}">
+                          <a href="http://127.0.0.1:8000/admin">后台管理</a>
+                         </li>
+                         {% endif %}  
+                         <li><a href="{% url 'logout' %}?from={{ request.get_full_path }}">退出</a></li>
+                      </ul>
+                  </li>
+                {% else %}
+                  <li class="{% block nav-login-active %}{% endblock %}" style="">
+                    <a href="{% url 'login' %}"> 登陆 </a>
+                  </li>
+                  <li class="{% block nav-register-active %}{% endblock %}">
+                    <a href="{% url 'register' %}"> 注册 </a>
+                  </li>                 
+                {% endif %}
+                  
+              </ul>
+                  
+            </div>
+          </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+              <li class="{% block first-active %}{% endblock %}"><a href="{% url 'week_report_first' %}">各车间异常情况<span class="sr-only">(current)</span></a></li>
+              </ul>
+              <ul class="nav nav-sidebar">
+                <li class="{% block zhengji-active %}{% endblock %}"><a href="{% url 'zhengji' %}">正极制片</a></li>
+                <li class="{% block fuji-active %}{% endblock %}"><a href="{% url 'fuji' %}">负极制片</a></li>
+                <li class="{% block juanrao-active %}{% endblock %}"><a href="{% url 'juanrao' %}">卷绕车间</a></li>
+                <li class="{% block zhuangpei-active %}{% endblock %}"><a href="{% url 'zhuangpei' %}">装配车间</a></li>
+                <li class="{% block zhuye-active %}{% endblock %}"><a href="{% url 'zhuye' %}">注液车间</a></li>
+                <li class="{% block huacheng-active %}{% endblock %}"><a href="{% url 'huacheng' %}">化成车间</a></li>
+                <li class="{% block erfeng-active %}{% endblock %}"><a href="{% url 'erfeng' %}">二封车间</a></li>
+                <li class="{% block fenrong-active %}{% endblock %}"><a href="{% url 'fenrong' %}">分容车间</a></li>
+                <li class="{% block fenxuan-active %}{% endblock %}"><a href="{% url 'fenxuan' %}">分选车间</a></li>
+              </ul>
+              <ul class="nav nav-sidebar">
+                <li class="{% block eqc-active %}{% endblock %}"><a href="{% url 'fqc_test' %}">分选入库FQC抽检一次合格率</a></li> 
+              </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <h1 class="page-header">{% block page-header %}{% endblock %}</h1>
+            <form action="{% block time-submit %}{% endblock %}" method="POST">
+              {% csrf_token %}
+              <div class="form-group">
+                <span class='glyphicon glyphicon-time'></span>
+                <input id="time" type='text' name="time"></input>
+                <button type="submit" class='btn btn-default' style='background: none;border:none;margin-left: -2em;'>
+                  <sapn class='glyphicon glyphicon-refresh'></sapn>
+                </button>
+              </div>
+                
+            </form>
+            <div class="img-or-details">
+              {% block img-or-details %}{% endblock %}
+            </div>
+
+          <h2 class="sub-header">{% block sub-header %}{% endblock %}</h2>
+          <div>
+            <table class="table table-bordered table-hover">
+                  {% block tables %}{% endblock %}
+            </table>
+            {% block more %}{% endblock %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <h4 class="refresh_text" style="text-align: center;">未登录，<strong id="second_show">5</strong>秒钟之后将带您进入首页。</h4>
+    <script type="text/javascript">
+    	var timeout = 5;
+    	    function showError() {
+    	        document.getElementById("second_show").innerHTML = timeout;
+    	        timeout--;
+    	        if (timeout == 0) {
+    	            window.location.href = "/";
+    	        } else {
+    	            setTimeout("showError()", 1000);
+    	        }
+    	    }
+    	    showError();
+    </script>
+    {% endif %}
+    <link type="text/css" rel="stylesheet" href="/static/css/tctip/myRewards.css">
+        <script>
+            window.tctipConfig = {
+                //最上面的文字
+                headText: "最新公告",
+                //侧边栏文本
+                siderText: "公告",
+                //侧边栏文本高度调整
+                siderTextTop: "-72px",
+                //侧边栏背景颜色
+                siderBgcolor: "#323d45",
+                //整个侧边栏的高度设置
+                siderTop:"118px",
+                //显示列表
+                list:{
+                    notice: {name:"公告栏", className:"myR-on",
+                             icon: "/static/img/tip.png",  
+                             text: "获取公告中..."
+                            },
+                    weixin: {name:"微信", desc: "欢迎联系我", 
+                             icon: "/static/img/weixin.png",
+                             qrimg: "/static/img/weixin.jpg"
+                            }    
+                }
+            };
+            $.ajax({
+        type:"GET",
+        url:"{% url 'get_notice' %}",
+        cache:false,
+        dataType:'json',
+        success:function(data){
+            var notice;
+            if(data['code']=='0'){
+                notice = data['notice'];
+            }else{
+                notice='暂无公告';
+            };
+            
+            //设置当前公告(当前显示)
+            $('.myRewards-text').html(notice);
+            //设置公告数据(切换的时候显示)
+            tctipConfig.list.notice.text=notice;
+        }
+    });
+        </script>
+
+        <script src="/static/js/tctip.min.js"></script>
+  </body>
+</html>
+<script>
+    $(function () {
+        var locale = {
+            "format": 'YYYY-MM-DD',
+            "separator": " - ",
+            "applyLabel": "确定",
+            "cancelLabel": "取消",
+            "fromLabel": "起始时间",
+            "toLabel": "结束时间'",
+            "customRangeLabel": "自定义",
+            "weekLabel": "W",
+            "daysOfWeek": ["日", "一", "二", "三", "四", "五", "六"],
+            "monthNames": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            "firstDay": 1
+        };
+        $('#time').daterangepicker({
+            'locale': locale,
+            ranges: {
+                '今日': [moment(), moment()],
+                '昨日': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                '最近7日': [moment().subtract(6, 'days'), moment()],
+                '最近30日': [moment().subtract(29, 'days'), moment()],
+                '本月': [moment().startOf('month'), moment().endOf('month')],
+                '上月': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month')
+                    .endOf('month')
+                ]
+            },
+            "alwaysShowCalendars": true,
+            "startDate": new Date(),
+            "endDate": new Date(),
+            "opens": "right",
+        }, function (start, end, label) {
+            console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+        });
+    })
+</script>
+<style>
+    input {
+        height: 30px;
+        line-height: 20px;
+        text-align: left;
+        margin-left: 10px;
+        
+    }
+    .btn-default {
+        background-color: #fff;
+        border: 1px solid #828080;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background-color: #08c;
+        border: 1px solid #08c;
+        border-radius: 3px;
+        color: #fff;
+        cursor: pointer;
+    }
+    .btn-primary:hover{
+        background-color: #357ebd;
+    }
+
+</style>

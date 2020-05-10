@@ -1,0 +1,15 @@
+ul {
+    list-style-type: none;
+}
+h3.people_header {
+    display: flex;
+    justify-content: center;
+}
+div.people-contends h4{
+    display: flex;
+    justify-content: center;
+}
+
+a.people_department {
+    color: #ffffff;
+}

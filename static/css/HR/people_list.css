@@ -1,0 +1,30 @@
+ul {
+    list-style-type: none!important;
+}
+
+a.departments {
+    text-decoration:none;
+    color:#146c7d;
+    font-family: 黑体;
+}
+table th {
+          white-space: nowrap;
+          }
+table td {
+          white-space: auto;
+          }
+
+table {
+      empty-cells: show;
+      border-collapse: collapse;
+      margin: 0 auto;
+      }
+.table-bordered{
+      border: 1px solid #ddd;
+      border-collapse: separate;
+      border-left: 0;
+                }
+.table-hover tr:hover {background:#eee}
+div.paginator {
+    text-align: center;
+}

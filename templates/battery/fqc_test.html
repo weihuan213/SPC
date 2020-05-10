@@ -1,0 +1,107 @@
+{% extends 'battery/week_report_base.html' %}
+{% load staticfiles %}
+{% block eqc-active %}active{% endblock %}
+{% block page-header %}FQC检测通过率{% endblock %}
+{% block img-or-details %}
+<div style="width:90%;height:450px;float:left" id="chartmain"></div>
+<script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+<script type='text/javascript'>
+	option = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            crossStyle: {
+                color: '#999'
+            }
+        }
+    },
+    toolbox: {
+        feature: {
+            dataView: {show: true, readOnly: false},
+            magicType: {show: true, type: ['line', 'bar']},
+            restore: {show: true},
+            saveAsImage: {show: true}
+        }
+    },
+    legend: {
+        data: ['检测批数', '合格批数', '返工批数','通过率']
+    },
+    xAxis: [
+        {
+            type: 'category',
+            data: {{time_list|safe}},
+            axisPointer: {
+                type: 'shadow'
+            }
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value',
+            min: 0,
+            max: 2500,
+            interval: 100,
+            axisLabel: {
+                formatter: '{value} '
+            }
+        },
+        {
+            type: 'value',
+            name: '通过率',
+            min: 80,
+            max: 100,
+            interval: 10,
+            axisLabel: {
+                formatter: '{value}% '
+            }
+        }
+    ],
+    series: [
+        {
+            name: '检测批数',
+            type: 'bar',
+            data: {{ex_num|safe}}
+        },
+        {
+            name: '合格批数',
+            type: 'bar',
+            data: {{qua_num|safe}}
+        },
+        {
+            name: '返工批数',
+            type: 'bar',
+            data: {{re_num|safe}}
+        },
+        {
+            name: '通过率',
+            type: 'line',
+            yAxisIndex: 1,
+            data: {{qua_rate|safe}}
+        },
+    ]
+};
+//获取dom容器
+var myChart = echarts.init(document.getElementById('chartmain'));
+// 使用刚指定的配置项和数据显示图表。
+myChart.setOption(option);
+</script>
+
+{% endblock %}
+{% block tables %}
+<thead>
+    <th>测试日期</th> <th>检验批数</th> <th>合格批数</th> <th>返工批数</th>
+</thead>
+<tbody>
+{% for fqc in fqcs %}
+  <tr>
+      <td>{{fqc.ex_date}}</td> <td>{{fqc.ex_num}}</td> <td>{{fqc.qualified_num}}</td> <td>{{fqc.return_num}}</td>
+  </tr>
+  {% empty %}
+  <tr>
+      <h3>---暂无信息，敬请期待---</h3>
+  </tr>
+{%endfor%}
+</tbody>
+{% endblock %}
+

@@ -1,0 +1,247 @@
+{% extends 'battery/week_report_base.html' %}
+{% load staticfiles %}
+{% block content-header %}
+<script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
+<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+<link rel="stylesheet" href="{% static 'css/battery/zhengji.css' %}">
+
+{% endblock %}
+{% block erfeng-active %}active{% endblock %}
+{% block page-header %}二封制片{% endblock %}
+{% block time-submit %}{% url 'erfeng' %}{% endblock %}
+{% block img-or-details %}
+<div id="container"></div>
+<button id="large" onclick="setSize(800)">设置宽度为 800px</button>
+<button id="small" onclick="setSize(400)">设置宽度为 400px</button>
+<div id="container-1" style="min-width:400px;height:400px"></div>
+<script>
+	var chart = Highcharts.chart('container', {
+			chart: {
+					type: 'column'
+			},
+			title: {
+					text: '二封车间合格率统计'
+			},
+			legend: {
+					align: 'right',
+					verticalAlign: 'middle',
+					layout: 'vertical'
+			},
+			xAxis: {
+					categories: {{dates|safe}},
+					labels: {
+							x: -10
+					}
+			},
+			yAxis: {
+					allowDecimals: false,
+					title: {
+							text: '数量'
+					}
+			},
+			series: [{
+					name: '生产数',
+					data: {{producted_num}}
+			}, {
+					name: '合格数',
+					data: {{qualified_num}}
+			}, {
+					name: '不良数',
+					data: {{unqualified_num}}
+			}],
+			responsive: {
+					rules: [{
+							condition: {
+									maxWidth: 500
+							},
+							chartOptions: {
+									legend: {
+											align: 'center',
+											verticalAlign: 'bottom',
+											layout: 'horizontal'
+									},
+									yAxis: {
+											labels: {
+													align: 'left',
+													x: 0,
+													y: -5
+											},
+											title: {
+													text: null
+											}
+									},
+									subtitle: {
+											text: null
+									},
+									credits: {
+											enabled: false
+									}
+							}
+					}]
+			}
+	});
+	function setSize(width) {
+			chart.setSize(width, 300);
+	}
+</script>
+{% endblock %}
+{% block sub-header %}
+合格率统计表
+{% endblock %}
+{% block tables %}
+<div class="battery-tables">
+	<div id=table-1>
+		<table  class="table table-bordered table-hover" rules=cols>
+		  <thead>
+		    <tr>
+		      <th>日期</th>
+		      <th>生产数</th>
+		      <th>合格数</th>
+		      <th>不良数</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		  	  {% for erfeng in erfengs %}
+		    <tr>
+		      <td>{{erfeng.producted_time}}</td>
+		      <td>{{erfeng.producted_num}}</td>
+		      <td>{{erfeng.qualified_num}}</td>
+		      <td>{{erfeng.unqualified_num}}</td>
+		    </tr>
+			{% empty %}
+			    <tr>
+			    	<td>---暂无信息---</td>
+			    </tr>
+		     {% endfor %}
+		  </tbody>
+		</table>
+	</div>
+	<h2 class="sub-header">不良率统计表</h2>
+	<div id="table-1">
+		<table  class="table table-bordered table-hover" rules=cols>
+		  <thead>
+		    <tr>
+		      <th>日期</th>
+		      <th>不良项目</th>
+		      <th>不良数</th>
+		      <!--<th>不良率</th>-->
+		    </tr>
+		  </thead>
+		  <tbody>
+		  	  {% for ef_unq in ef_unqs %}
+		    <tr>
+		      <td>{{ef_unq.created_time}}</td>
+		      <td>{{ef_unq.unqualified_type}}</td>
+		      <td>{{ef_unq.unqualified_num}}</td>
+		    </tr>
+			{% empty %}
+			    <tr>
+			    	<td>---暂无信息---</td>
+			    </tr>
+		     {% endfor %}
+		  </tbody>
+		</table>
+	</div>
+</div>
+
+
+{% endblock %}
+{% block more %}
+
+<script>
+	Highcharts.chart('container-1', {
+		chart: {
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			type: 'pie',
+			animation: false			
+		},
+		title: {
+			text: '不良统计'
+		},
+		tooltip: {
+			pointFormat: '<b>数量: {point.y}</b>'
+		},
+		plotOptions: {
+			pie: {
+				animation: false,
+				allowPointSelect: true,
+				cursor: 'pointer',
+				dataLabels: {
+					enabled: false
+				},
+				showInLegend: true
+			}
+		},
+		series: [{
+			name: '数量',
+			colorByPoint: true,
+			center: ['25%', '50%'],
+			endAngle: 102,
+			startAngle: 102,
+			dataLabels: {
+				enabled: true,
+				inside: true,
+				distance: -30,
+				format: '{point.name}: {point.percentage:.1f}%'
+			},
+			data: [{
+				name: '合格',
+				y: {{qualified_nums}},
+			},{
+				name: '不良',
+				y: {{unqualified_nums}},
+				sliced: true,
+				showInLegend: false,
+				selected: true
+			}],
+		},{
+			
+			name: '数量',
+			// linkedPoint: [0, 5],
+			colorByPoint: true,
+			center: ['75%', '50%'],
+			size: '60%',
+			innerSize: '50%',
+			data: {{unqualified_data_list|safe}},
+			dataLabels: {
+				connectorWidth:1,
+				connectorColor: 'black',
+				enabled: true,
+				inside: true,
+				distance: 5,
+				format: '{point.name}: {point.percentage:.1f}%'	
+			},
+			
+		}]
+	}, function(chart) {
+		let parentSeries = chart.series[0],
+			points = parentSeries.points,
+			paretPoint = points[points.length -1],
+			targetSeries= chart.series[1],
+			renderer = chart.renderer,
+			shapeArgs = paretPoint.shapeArgs,
+			targetCenter = targetSeries.center;
+		let paths = ['M', 
+					 // x + plotLeft + r * cos(deg) + 10 // 
+					 shapeArgs.x + chart.plotLeft + Math.cos(shapeArgs.start) * shapeArgs.r + 10,
+					 shapeArgs.y + chart.plotTop + Math.sin(shapeArgs.start) * shapeArgs.r ,
+					 'L', 
+					 targetCenter[0] + chart.plotLeft,  
+					 chart.plotTop + targetCenter[1] - targetCenter[2] /2,
+					 'M',
+					 targetCenter[0] + chart.plotLeft,  
+					 chart.plotTop + targetCenter[1]  + targetCenter[2] / 2,
+					 'L',
+					 shapeArgs.x + chart.plotLeft + Math.cos(shapeArgs.end) * shapeArgs.r + 10,
+					 shapeArgs.y + chart.plotTop + Math.sin(shapeArgs.end) * shapeArgs.r
+					];
+		renderer.path(paths).attr({
+			stroke: '#000',
+			'stroke-width': 1
+		}).add();
+	});
+</script>
+{% endblock %}

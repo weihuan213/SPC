@@ -1,0 +1,56 @@
+{% extends 'HR/HR_base.html' %}
+{% load staticfiles %}
+{% block first-active %}{% endblock %}
+{% block page-header %}公司员工信息{% endblock %}
+{% block img-or-details %}
+	<p>{{ department }}门员工</p>
+{% endblock %}
+{% block sub-header %}员工表{% endblock %}
+{% block department %}active{% endblock %}
+{% block tables %}
+
+<thead>
+		<th>id</th><th>员工姓名</th> <td>所属部门</td>  <th>性别</th> <th>籍贯</th>
+	</thead>
+	{% for person in people %}
+	<tbody>
+		<tr>
+			<td>{{ person.id }}</td>
+			<td>{% if request.session.is_login and user.is_staff %} <!--模板语言中且关系用and表示-->
+				<a href="{% url 'people_detail' person.pk %}">{{ person.name }}</a>
+				{% else %}
+				{{ person.name }}
+				{% endif %}
+			</td> <!--这里判断是否为超级用户，若不是则无法访问用户的详细信息-->
+			<td>{{ person.department }}</td>
+			<td>{{ person.gender }}</td><td>{{ person.home_position }}</td>
+		</tr>
+	</tbody>
+	{% empty %}
+	<tbody>
+		<h3>---暂无信息---</h3>
+	</tbody>
+	{%endfor%}
+
+{% endblock %}
+{% block left_side %}
+		  <ul class="nav nav-sidebar">
+			{% for department_n in department_list_all %}
+				{% if department.department == department_n.department %}
+			  	<!--这里传入的{{ department }}和department_n.department类型不一致,而与department_n类型一致-->
+					<li class="active"><a href="{% url 'people_with_depatments_list' department_n.pk %}">
+						{{ department_n.department }}
+					</a></li>
+			  	{% else %}
+			  		<li><a href="{% url 'people_with_depatments_list' department_n.pk %}">
+						{{ department_n.department }}
+					</a></li>
+			  	{% endif %}
+			{% empty %}
+				<li><a href="#">
+					--未添加任何部门信息--
+				</a></li>
+			{% endfor %}
+		  </ul>
+		</div>
+{% endblock %}

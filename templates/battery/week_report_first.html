@@ -1,0 +1,27 @@
+{% extends 'battery/week_report_base.html' %}
+{% load staticfiles %}
+{% block first-active %}active{% endblock %}
+{% block page-header %}
+各车间异常情况
+{% endblock %}
+{% block time-submit %}{% url 'week_report_first'%}{% endblock %}
+{% block img-or-details %} <h4>本周情况汇报：</h4>{% endblock %}
+{% block sub-header %}各车间异常情况统计表{% endblock %}
+{% block tables %}
+<thead>
+    <th>产品型号</th> <th>发生日期</th> <th>不良描述</th> <th>原因分析</th>
+      <th>处理措施</th> <th>类别</th> <th>提报工段</th> <th>责任单位</th> <th>目前状况</th>
+</thead>
+<tbody>
+{% for work_shop_error in work_shop_errors %}
+  <tr>
+      <td>{{work_shop_error.product_type}}</td> <td>{{work_shop_error.happened_date}}</td> <td>{{work_shop_error.situation_description}}</td> <td>{{work_shop_error.reason_analysis}}</td>
+      <td>{{work_shop_error.measure}}</td> <td>{{work_shop_error.error_type}}</td> <td>{{work_shop_error.putting_position}}</td><td>{{work_shop_error.resp_position}}</td> <td>{{work_shop_error.curr_situation}}</td>
+  </tr>
+  {% empty %}
+  <tr>
+      <h3>---暂无信息，敬请期待---</h3>
+  </tr>
+{%endfor%}
+</tbody>
+{% endblock %}

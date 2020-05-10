@@ -1,0 +1,34 @@
+{% extends 'HR/HR_base.html' %}
+{% load staticfiles %}
+{% block first-active %}active{% endblock %}
+{% block page-header %}公司员工信息{% endblock %}
+{% block img-or-details %}
+	<p>全体部门员工</p>
+{% endblock %}
+{% block sub-header %}员工表{% endblock %}
+{% block tables %}
+	<thead>
+		<th>id</th><th>员工姓名</th> <td>所属部门</td>  <th>性别</th> <th>籍贯</th>
+	</thead>
+	{% for person in people %}
+	<tbody>
+		<tr>
+			<td>{{ person.id }}</td>
+			<td>{% if request.session.is_login and user.is_staff %} <!--模板语言中且关系用and表示-->
+				<a href="{% url 'people_detail' person.pk %}">{{ person.name }}</a>
+				{% else %}
+				{{ person.name }}
+				{% endif %}
+			</td> <!--这里判断是否为超级用户，若不是则无法访问用户的详细信息-->
+			<td>{{ person.department }}</td>
+			<td>{{ person.gender }}</td><td>{{ person.home_position }}</td>
+		</tr>
+	</tbody>
+	{% empty %}
+	<tbody>
+		<h3>---暂无信息---</h3>
+	</tbody>
+	{%endfor%}
+
+
+{% endblock %}

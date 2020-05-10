@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content-header %}
+<link rel="stylesheet" href="/static/css/HR/people_list.css">
+
+{%endblock%}
+{% block nav-picture-HR-active %}active{% endblock %}
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2"'>
+			<div class="panel panel-default">
+              {% if search_words == '' %}
+            <div class="panel-heading">搜索“{{ search_words }}”,共查到0个结果</div>
+			  <table class="table table-bordered table-hover">
+
+                    <h3 style="display: flex; justify-content: center;">你未输入任何内容</h3>
+                    <h4 style="display: flex; justify-content: center;">或许你应该输入点什么</h4>
+
+
+                  {% else %}
+                    <div class="panel-heading">搜索“{{ search_words }}”,共查到{{ search_people_count }}个结果</div>
+                        <table class="table table-bordered table-hover">
+                          <thead>
+                            <th>id</th><td>所属部门</td> <th>员工姓名</th> <th>性别</th> <th>籍贯</th>
+                          </thead>
+                        {% for person in page_of_people %}
+                        <tbody>
+                        <tr>
+                            <td>{{ person.id }}</td> <td>{{ person.department }}</td>
+                            <td>{% if request.session.is_login and user.is_staff %} <!--模板语言中且关系用and表示-->
+                                    <a href="{% url 'people_detail' person.pk %}">{{ person.name }}</a>
+                                {% else %}
+                                    {{ person.name }}
+                                {% endif %}
+                            </td> <!--这里判断是否为超级用户，若不是则无法访问用户的详细信息-->
+                            <td>{{ person.gender }}</td>
+                            <td>{{ person.home_position }}</td>
+                        </tr>
+                        </tbody>
+                        {% empty %}
+                        <tbody>
+                            <h3>---暂无信息---</h3>
+                        </tbody>
+                        {%endfor%}
+               {% endif %}
+			  </table>
+			</div>
+			<div class="paginator" style="display: flex; justify-content: center;">
+
+				{% if page_of_blogs.has_previous %}
+                    <a class="btn btn-default"
+                       href="{% url 'search' %}?wd={{ search_word }}&page={{ page_of_blog.previous_page_number }}">
+                        上一页</a>
+                {% endif %}
+                {% if page_of_blogs.has_next %}
+                <a class="btn btn-default"
+                   href="{% url 'search' %}?wd={{ search_word }}&page={{ page_of_blog.next_page_number }}">
+                    下一页</a>
+                {% endif %}
+
+
+		</div> <!-- 分页器 -->
+
+		</div>
+
+</div>
+{% endblock %}
